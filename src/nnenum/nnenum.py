@@ -96,7 +96,8 @@ def main():
     'main entry point'
 
     if len(sys.argv) < 3:
-        print('usage: "python3 nnenum.py <onnx_file> <vnnlib_file> [timeout=None] [outfile=None] [processes=<auto>]"')
+        print('usage: "python3 nnenum.py <onnx_file> <vnnlib_file> [timeout=none/float] [outfile=none/file_path] [processes=auto/int] [hidden_setting=auto/control/image/exact]"')
+        print('E.g.: "python3 nnenum.py onnx.onnx spec.vnnlib 300 /dev/null 4 "')
         sys.exit(1)
 
     onnx_filename = sys.argv[1]
@@ -105,19 +106,25 @@ def main():
     outfile = None
 
     if len(sys.argv) >= 4:
-        timeout = float(sys.argv[3])
+        p3 = sys.argv[3]
+        timeout = None if p3.lower() == "none" else float(p3)
 
     if len(sys.argv) >= 5:
-        outfile = sys.argv[4]
+        p4 = sys.argv[4]
+        outfile = None if p4.lower() == "none" else p4
 
     if len(sys.argv) >= 6:
-        processes = int(sys.argv[5])
-        Settings.NUM_PROCESSES = processes
+        p5 = sys.argv[5]
+        if p5.lower() not in ("auto", "none"):
+            Settings.NUM_PROCESSES = int(p5)
+            
 
     if len(sys.argv) >= 7:
         settings_str = sys.argv[6]
     else:
         settings_str = "auto"
+
+    print(f"NNENUM SETTINGS: processes={Settings.NUM_PROCESSES}, timeout={timeout}, settings={settings_str}, outfile={outfile}")
 
     #
     spec_list, input_dtype = make_spec(vnnlib_filename, onnx_filename)
